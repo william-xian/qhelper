@@ -1,14 +1,11 @@
 import React from "react";
-import { Alert, Button, ButtonToolbar, Container, ControlLabel, DatePicker, Divider, Form, FormControl, FormGroup, HelpBlock, Icon, IconButton, Modal, Table, Timeline } from "rsuite";
+import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Divider, Drawer, Form, FormControl, FormGroup, HelpBlock, Icon, IconButton, Modal, Table, Timeline } from "rsuite";
 import { DateV } from "../components/base";
 
 const DAY_MILLS = 24 * 60 * 60 * 1000;
 
 class HomePage extends React.Component {
     state = {
-        confirmVisible: false,
-        confirmContent: '',
-        confirmCallback: () => { },
         addVisible: false,
         added: true,
         np: { name: '', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
@@ -64,8 +61,8 @@ class HomePage extends React.Component {
         } else {
             if (old) {
                 let oi = data.findIndex((v: any) => v.name === np.name);
-                data.splice(oi,1);
-            } 
+                data.splice(oi, 1);
+            }
             data.push({ name: np.name, times: np.firstTimes, plan: np.plan });
             data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
             window.localStorage.setItem("persons", JSON.stringify(data));
@@ -86,7 +83,19 @@ class HomePage extends React.Component {
             data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
             this.setState({ data })
         }
-        this.setState({ confirmVisible: true, confirmCallback: callback, confirmContent: '您确定该患者今天打针?', })
+        Notification.open({
+            key:'update',
+            title: '今日打针?',
+            description: (
+              <div>
+                <p>您确定该患者今天打针?</p>
+                <ButtonToolbar>
+                  <Button color="blue" onClick={() => {Notification.close('update')}}>取消</Button>
+                  <Button color="green" onClick={() => {callback();Notification.close('update')}}>确定</Button>
+                </ButtonToolbar>
+              </div>
+            )
+        });
     }
 
     delete(item: any) {
@@ -97,10 +106,22 @@ class HomePage extends React.Component {
             window.localStorage.setItem("persons", JSON.stringify(data));
             this.setState({ data })
         }
-        this.setState({ confirmVisible: true, confirmCallback: callback, confirmContent: '您确定该患者已经打完并删除?', })
+        Notification.warning({
+            key:'delete',
+            title: '删除用户?',
+            description: (
+              <div>
+                <p>您确定该患者已经打完并删除?</p>
+                <ButtonToolbar>
+                  <Button color="green"  onClick={() => {Notification.close('update')}}>取消</Button>
+                  <Button color="red"  onClick={() => {callback();Notification.close('delete')}}>确定</Button>
+                </ButtonToolbar>
+              </div>
+            )
+        });
     }
     render() {
-        const { confirmVisible, confirmCallback, confirmContent, addVisible, np, data } = this.state;
+        const { addVisible, np, data } = this.state;
         const width = window.screen.width - 64;
         return (<div>
             <Table data={data} autoHeight={true} virtualized bordered>
@@ -154,12 +175,12 @@ class HomePage extends React.Component {
                     </Table.Cell>
                 </Table.Column>
             </Table>
-            <Modal show={addVisible} size={"xs"} width={width} onHide={() => this.setState({ addVisible: false })}>
-                <Modal.Header>
-                    <Modal.Title>{np.name || '新增患者'}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form formValue={np}>
+
+            <Drawer show={addVisible} full placement={'bottom'} size={"xs"} onHide={() => this.setState({ addVisible: false })}>
+                <Drawer.Header>
+                    <Drawer.Title>{np.name || '新增患者'}</Drawer.Title>
+                </Drawer.Header>
+                <Drawer.Body>                    <Form formValue={np}>
                         <FormGroup>
                             <ControlLabel>姓名</ControlLabel>
                             <FormControl name="name" onChange={(v) => this.set({ name: v })} />
@@ -184,44 +205,18 @@ class HomePage extends React.Component {
                             }
 
                         </Timeline>
-                        <FormGroup>
-                            <ButtonToolbar>
-                                <Button appearance="default" onClick={() => this.setState({ addVisible: false })}>取消</Button>
-                                <Button onClick={() => this.setPlan()} appearance="primary">
-                                    计划
-                                </Button>
-                                <Button onClick={() => this.add()} appearance="primary" disabled={np.plan.length == 0}>
-                                    添加
-                                </Button>
-                            </ButtonToolbar>
-                        </FormGroup>
                     </Form>
-                </Modal.Body>
-            </Modal>
-
-            <Modal show={confirmVisible} size="xs" width={width} onHide={() => this.setState({ confirmVisible: false, confirmCallback: null })}>
-                <Modal.Body>
-                    <Icon
-                        icon="remind"
-                        style={{
-                            color: '#ffb300',
-                            fontSize: 24
-                        }}
-                    />
-                    {confirmContent}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={() => this.setState({ confirmVisible: false, confirmCallback: null })} appearance="subtle">
-                        取消
+                </Drawer.Body>
+                <Drawer.Footer>
+                    <Button appearance="default" onClick={() => this.setState({ addVisible: false })}>取消</Button>
+                    <Button onClick={() => this.setPlan()} appearance="primary">
+                        计划
                     </Button>
-                    <Button onClick={() => {
-                        if (confirmCallback) { confirmCallback() };
-                        this.setState({ confirmVisible: false, confirmCallback: null })
-                    }} appearance="primary">
-                        确定
+                    <Button onClick={() => this.add()} appearance="primary" disabled={np.plan.length == 0}>
+                        保存
                     </Button>
-                </Modal.Footer>
-            </Modal>
+                </Drawer.Footer>
+            </Drawer>
         </div>
         );
     }
