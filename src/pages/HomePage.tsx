@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Divider, Drawer, Form, FormControl, FormGroup, HelpBlock, Icon, IconButton, Modal, Table, Timeline } from "rsuite";
+import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Divider, Drawer, Form, FormControl, FormGroup, HelpBlock, Icon, IconButton, Modal, Table, Timeline, InputNumber } from "rsuite";
 import { DateV } from "../components/base";
 
 const DAY_MILLS = 24 * 60 * 60 * 1000;
@@ -8,7 +8,7 @@ class HomePage extends React.Component {
     state = {
         addVisible: false,
         added: true,
-        np: { name: '', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
+        np: { name: '', remark:'', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
         data: [{ name: '张三', times: 0, plan: [new Date()] }]
     }
     componentDidMount() {
@@ -90,8 +90,8 @@ class HomePage extends React.Component {
               <div>
                 <p>您确定该患者今天打针?</p>
                 <ButtonToolbar>
-                  <Button color="blue" onClick={() => {Notification.close('update')}}>取消</Button>
-                  <Button color="green" onClick={() => {callback();Notification.close('update')}}>确定</Button>
+                  <Button size="xs" color="blue" onClick={() => {Notification.close('update')}}>取消</Button>
+                  <Button size="xs" color="green" onClick={() => {callback();Notification.close('update')}}>确定</Button>
                 </ButtonToolbar>
               </div>
             )
@@ -113,8 +113,8 @@ class HomePage extends React.Component {
               <div>
                 <p>您确定该患者已经打完并删除?</p>
                 <ButtonToolbar>
-                  <Button color="green"  onClick={() => {Notification.close('update')}}>取消</Button>
-                  <Button color="red"  onClick={() => {callback();Notification.close('delete')}}>确定</Button>
+                  <Button size="xs" color="green"  onClick={() => {Notification.close('update')}}>取消</Button>
+                  <Button size="xs" color="red"  onClick={() => {callback();Notification.close('delete')}}>确定</Button>
                 </ButtonToolbar>
               </div>
             )
@@ -178,10 +178,15 @@ class HomePage extends React.Component {
                 <Drawer.Header>
                     <Drawer.Title>{np.name || '新增患者'}</Drawer.Title>
                 </Drawer.Header>
-                <Drawer.Body>                    <Form formValue={np}>
+                <Drawer.Body>
+                    <Form formValue={np}>
                         <FormGroup>
                             <ControlLabel>姓名</ControlLabel>
                             <FormControl name="name" onChange={(v) => this.set({ name: v })} />
+                        </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>备注</ControlLabel>
+                            <FormControl name="remark" onChange={(v) => this.set({ remark: v })} />
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>第一针时间</ControlLabel>
@@ -189,11 +194,11 @@ class HomePage extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>首次打几针</ControlLabel>
-                            <FormControl name="firstTimes" type="number" onChange={(v) => this.set({ firstTimes: v, plan: [] })} />
+                            <FormControl name="firstTimes" accepter={InputNumber} onChange={(v) => this.set({ firstTimes: parseInt(v.toString()), plan: [] })} />
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>两针间隔（天)</ControlLabel>
-                            <FormControl name="interval" type="numuber" onChange={(v) => this.set({ interval: v, plan: [] })} />
+                            <FormControl name="interval" accepter={InputNumber} onChange={(v) => this.set({ interval: parseInt(v.toString()), plan: [] })} />
                         </FormGroup>
                         <Timeline>
                             {np.plan.map((t: Date, i: number) => (
