@@ -129,7 +129,7 @@ class HomePage extends React.Component {
                         }
                     </Table.Cell>
                 </Table.Column>
-                <Table.Column width={128} fixed="right">
+                <Table.Column width={70} fixed="right">
                     <Table.HeaderCell><Icon icon="user-plus" onClick={() => this.setState({ addVisible: true, added: true, })} /></Table.HeaderCell>
                     <Table.Cell>
                         {(rowData: any) => {
