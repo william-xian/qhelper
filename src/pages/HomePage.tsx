@@ -127,7 +127,9 @@ class HomePage extends React.Component {
             <Table data={data} autoHeight={true} virtualized bordered>
                 <Table.Column align="center" width={100} fixed>
                     <Table.HeaderCell>姓名</Table.HeaderCell>
-                    <Table.Cell dataKey="name" />
+                    <Table.Cell dataKey="name">
+                        {(row:any) => (<a onClick={() => this.edit(row)}>{row.name}</a>)}
+                    </Table.Cell>
                 </Table.Column>
                 <Table.Column width={68}>
                     <Table.HeaderCell>针次</Table.HeaderCell>
@@ -150,7 +152,7 @@ class HomePage extends React.Component {
                         }
                     </Table.Cell>
                 </Table.Column>
-                <Table.Column width={70} fixed="right">
+                <Table.Column width={64} fixed="right">
                     <Table.HeaderCell><Icon icon="user-plus" onClick={() => this.setState({ addVisible: true, added: true, })} /></Table.HeaderCell>
                     <Table.Cell>
                         {(rowData: any) => {
@@ -158,16 +160,12 @@ class HomePage extends React.Component {
                                 return (
                                     <span>
                                         <a onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></a>
-                                        <Divider vertical={true} />
-                                        <a onClick={() => this.edit(rowData)}><Icon icon="edit" /></a>
                                     </span>
                                 );
                             } else {
                                 return (
                                     <span>
-                                        <a onClick={() => this.delete(rowData)}><Icon icon="close-circle" /></a>
-                                        <Divider vertical={true} />
-                                        <a onClick={() => this.edit(rowData)}><Icon icon="edit" /></a>
+                                        <a onClick={() => this.delete(rowData)}><Icon icon="close"/></a>
                                     </span>
                                 );
                             }
