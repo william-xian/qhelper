@@ -1,14 +1,15 @@
 import React from "react";
-import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Divider, Drawer, Form, FormControl, FormGroup, HelpBlock, Icon, IconButton, Modal, Table, Timeline, InputNumber } from "rsuite";
+import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Drawer, Form, FormControl, FormGroup, Icon, Table, Timeline, InputNumber } from "rsuite";
 import { DateV } from "../components/base";
 
 const DAY_MILLS = 24 * 60 * 60 * 1000;
 
-class HomePage extends React.Component {
+class Peoples extends React.Component {
     state = {
         addVisible: false,
         added: true,
         np: { name: '', remark:'', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
+        info: { income: 0, done: 0 },
         data: [{ name: '张三', times: 0, plan: [new Date()] }]
     }
     componentDidMount() {
@@ -21,7 +22,18 @@ class HomePage extends React.Component {
                 data = [];
             }
         }
-        this.setState({ data });
+        let jsonInfo = window.localStorage.getItem("info");
+        let info = {
+            income: 0,
+            done: 0
+        }
+        if (jsonInfo) {
+            try {
+                info = JSON.parse(jsonInfo);
+            } catch (e) {
+            }
+        }
+        this.setState({ data, info});
     }
     componentDidUpdate() {
 
@@ -101,10 +113,12 @@ class HomePage extends React.Component {
 
     delete(item: any) {
         let callback = () => {
-            const { data } = this.state;
+            const { data,info } = this.state;
             let i = data.findIndex((v) => v.name === item.name)
             data.splice(i, 1);
             window.localStorage.setItem("persons", JSON.stringify(data));
+            
+            window.localStorage.setItem("info", JSON.stringify(info));
             this.setState({ data })
         }
         Notification.warning({
@@ -123,13 +137,13 @@ class HomePage extends React.Component {
     }
     render() {
         const { addVisible, np, data } = this.state;
-        const width = window.screen.width - 64;
+        const height = window.screen.height - 32;
         return (<div>
-            <Table data={data} autoHeight={true} virtualized bordered>
+            <Table data={data} height={height} virtualized bordered>
                 <Table.Column align="center" width={100} fixed>
                     <Table.HeaderCell>姓名</Table.HeaderCell>
                     <Table.Cell dataKey="name">
-                        {(row:any) => (<a onClick={() => this.edit(row)}>{row.name}</a>)}
+                        {(row:any) => (<Button appearance="link" style={{margin:0,padding:0}} onClick={() => this.edit(row)}>{row.name}</Button>)}
                     </Table.Cell>
                 </Table.Column>
                 <Table.Column width={68}>
@@ -160,13 +174,13 @@ class HomePage extends React.Component {
                             if (rowData.times < 10) {
                                 return (
                                     <span>
-                                        <a onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></a>
+                                        <Button appearance="link" style={{margin:0,padding:0}}  onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></Button>
                                     </span>
                                 );
                             } else {
                                 return (
                                     <span>
-                                        <a onClick={() => this.delete(rowData)}><Icon icon="close"/></a>
+                                        <Button appearance="link" style={{margin:0,padding:0}} onClick={() => this.delete(rowData)}><Icon icon="close"/></Button>
                                     </span>
                                 );
                             }
@@ -216,7 +230,7 @@ class HomePage extends React.Component {
                     <Button onClick={() => this.setPlan()} appearance="primary">
                         计划
                     </Button>
-                    <Button onClick={() => this.add()} appearance="primary" disabled={np.plan.length == 0}>
+                    <Button onClick={() => this.add()} appearance="primary" disabled={np.plan.length === 0}>
                         保存
                     </Button>
                 </Drawer.Footer>
@@ -226,4 +240,4 @@ class HomePage extends React.Component {
     }
 }
 
-export default HomePage;
+export default Peoples;

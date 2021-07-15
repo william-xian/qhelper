@@ -1,6 +1,5 @@
 import React from "react";
 
-
 export class DateV extends React.Component<{ format?: string, value: Date }> {
 
     render() {
