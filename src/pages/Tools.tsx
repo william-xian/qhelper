@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Icon, Input, InputGroup, InputNumber, Panel, Row } from "rsuite";
+import { Col, Divider, Icon, Input, InputGroup, InputNumber, Panel, Row } from "rsuite";
 
 export class Tools extends React.Component {
 
@@ -66,15 +66,21 @@ export class Tools extends React.Component {
         let remain = info.income - info.done - used;
         return (
             <div>
-                <Panel header="药量概况">
+                <Panel header="药量概况" bordered style={{margin:'6px'}}>
                     <Row>
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>总共进货:</InputGroup.Addon>
-                                <Input value={(info.income/2).toString()}></Input>
+                                <Input readOnly value={(info.income/2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <InputGroup>
                                 <InputGroup.Addon>总共使用:</InputGroup.Addon>
-                                <Input value={((info.done + used)/2).toString()}></Input>
+                                <Input readOnly value={((info.done + used)/2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
@@ -83,12 +89,8 @@ export class Tools extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>剩余库存:</InputGroup.Addon>
-                                <Input value={(remain / 2).toString()}></Input>
+                                <Input readOnly value={(remain / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
-                                <InputGroup.Button>
-                                    <Icon icon="plus" onClick={() => this.addIncome()} />
-                                </InputGroup.Button>
-                                <InputNumber value={inc} onChange={(v) => this.setState({ inc: v })} />
                             </InputGroup>
                         </Col>
                     </Row>
@@ -96,7 +98,7 @@ export class Tools extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>下月还需:</InputGroup.Addon>
-                                <Input value={(need / 2).toString()}></Input>
+                                <Input readOnly value={(need / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
@@ -105,8 +107,20 @@ export class Tools extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>下月需进:</InputGroup.Addon>
-                                <Input value={(Math.max(0, (need - remain)) / 2).toString()}></Input>
+                                <Input readOnly value={(Math.max(0, (need - remain)) / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
+                            </InputGroup>
+                        </Col>
+                    </Row>
+                    <Divider>更改库存</Divider>
+                    <Row>
+                        <Col>
+                            <InputGroup>
+                                <InputGroup.Addon>进货盒数:</InputGroup.Addon>
+                                <InputNumber value={inc} onChange={(v) => this.setState({ inc: v })} />
+                                <InputGroup.Button>
+                                    <Icon icon="plus" onClick={() => this.addIncome()} />
+                                </InputGroup.Button>
                             </InputGroup>
                         </Col>
                     </Row>

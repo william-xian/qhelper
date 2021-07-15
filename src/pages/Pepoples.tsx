@@ -8,7 +8,7 @@ class Peoples extends React.Component {
     state = {
         addVisible: false,
         added: true,
-        np: { name: '', remark:'', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
+        np: { name: '', remark: '', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
         info: { income: 0, done: 0 },
         data: [{ name: '张三', times: 0, plan: [new Date()] }]
     }
@@ -33,7 +33,7 @@ class Peoples extends React.Component {
             } catch (e) {
             }
         }
-        this.setState({ data, info});
+        this.setState({ data, info });
     }
     componentDidUpdate() {
 
@@ -75,7 +75,7 @@ class Peoples extends React.Component {
                 let oi = data.findIndex((v: any) => v.name === np.name);
                 data.splice(oi, 1);
             }
-            
+
             data.push({ name: np.name, times: parseInt(np.firstTimes.toString()), plan: np.plan });
             data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
             window.localStorage.setItem("persons", JSON.stringify(data));
@@ -97,53 +97,53 @@ class Peoples extends React.Component {
             this.setState({ data })
         }
         Notification.open({
-            key:'update',
+            key: 'update',
             title: '今日打针?',
             description: (
-              <div>
-                <p>您确定该患者今天打针?</p>
-                <ButtonToolbar>
-                  <Button size="xs" color="blue" onClick={() => {Notification.close('update')}}>取消</Button>
-                  <Button size="xs" color="green" onClick={() => {callback();Notification.close('update')}}>确定</Button>
-                </ButtonToolbar>
-              </div>
+                <div>
+                    <p>您确定该患者今天打针?</p>
+                    <ButtonToolbar>
+                        <Button size="xs" color="blue" onClick={() => { Notification.close('update') }}>取消</Button>
+                        <Button size="xs" color="green" onClick={() => { callback(); Notification.close('update') }}>确定</Button>
+                    </ButtonToolbar>
+                </div>
             )
         });
     }
 
     delete(item: any) {
         let callback = () => {
-            const { data,info } = this.state;
+            const { data, info } = this.state;
             let i = data.findIndex((v) => v.name === item.name)
             data.splice(i, 1);
             window.localStorage.setItem("persons", JSON.stringify(data));
-            
+            info.done += item.times;
             window.localStorage.setItem("info", JSON.stringify(info));
             this.setState({ data })
         }
         Notification.warning({
-            key:'delete',
+            key: 'delete',
             title: '删除用户?',
             description: (
-              <div>
-                <p>您确定该患者已经打完并删除?</p>
-                <ButtonToolbar>
-                  <Button size="xs" color="green"  onClick={() => {Notification.close('update')}}>取消</Button>
-                  <Button size="xs" color="red"  onClick={() => {callback();Notification.close('delete')}}>确定</Button>
-                </ButtonToolbar>
-              </div>
+                <div>
+                    <p>您确定该患者已经打完并删除?</p>
+                    <ButtonToolbar>
+                        <Button size="xs" color="green" onClick={() => { Notification.close('update') }}>取消</Button>
+                        <Button size="xs" color="red" onClick={() => { callback(); Notification.close('delete') }}>确定</Button>
+                    </ButtonToolbar>
+                </div>
             )
         });
     }
     render() {
         const { addVisible, np, data } = this.state;
-        const height = window.screen.height - 32;
+        const height = document.body.clientHeight-42;
         return (<div>
             <Table data={data} height={height} virtualized bordered>
                 <Table.Column align="center" width={100} fixed>
                     <Table.HeaderCell>姓名</Table.HeaderCell>
                     <Table.Cell dataKey="name">
-                        {(row:any) => (<Button appearance="link" style={{margin:0,padding:0}} onClick={() => this.edit(row)}>{row.name}</Button>)}
+                        {(row: any) => (<Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.edit(row)}>{row.name}</Button>)}
                     </Table.Cell>
                 </Table.Column>
                 <Table.Column width={68}>
@@ -174,13 +174,13 @@ class Peoples extends React.Component {
                             if (rowData.times < 10) {
                                 return (
                                     <span>
-                                        <Button appearance="link" style={{margin:0,padding:0}}  onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></Button>
+                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></Button>
                                     </span>
                                 );
                             } else {
                                 return (
                                     <span>
-                                        <Button appearance="link" style={{margin:0,padding:0}} onClick={() => this.delete(rowData)}><Icon icon="close"/></Button>
+                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.delete(rowData)}><Icon icon="close" /></Button>
                                     </span>
                                 );
                             }

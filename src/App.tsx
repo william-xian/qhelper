@@ -33,7 +33,7 @@ class App extends React.Component {
         <Header></Header>
         <Content style={{ overflow: 'auto' }}>{content}</Content>
         <Footer>
-          <Nav justified appearance="subtle" reversed activeKey={active} onSelect={(evtKey) => this.onSelect(evtKey)}>
+          <Nav style={{ textAlign: "center" }} justified appearance="subtle" reversed activeKey={active} onSelect={(evtKey) => this.onSelect(evtKey)}>
             <Nav.Item eventKey="home" icon={<Icon icon="peoples" />}>患者</Nav.Item>
             <Nav.Item eventKey="tools" icon={<Icon icon="gift" />}>工具</Nav.Item>
           </Nav>

@@ -44,3 +44,10 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+```
+npm run build
+mkdir -p build/rs; mv build/index.html build/rs/qq.html;
+scp -Cr build/* root@www.onceio.top:/usr/local/nginx/html/
+```

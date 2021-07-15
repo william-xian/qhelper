@@ -4,3 +4,7 @@ body,
 .rs-container {
     height: 100%;
 }
+
+.rs-nav-item>.rs-nav-item-content {
+    font-size: 18px;
+}
