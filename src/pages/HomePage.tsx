@@ -63,7 +63,8 @@ class HomePage extends React.Component {
                 let oi = data.findIndex((v: any) => v.name === np.name);
                 data.splice(oi, 1);
             }
-            data.push({ name: np.name, times: np.firstTimes, plan: np.plan });
+            
+            data.push({ name: np.name, times: parseInt(np.firstTimes.toString()), plan: np.plan });
             data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
             window.localStorage.setItem("persons", JSON.stringify(data));
             this.setState({ addVisible: false, data })
@@ -186,7 +187,7 @@ class HomePage extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>备注</ControlLabel>
-                            <FormControl name="remark" onChange={(v) => this.set({ remark: v })} />
+                            <FormControl name="remark" componentClass="textarea" onChange={(v) => this.set({ remark: v })} />
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>第一针时间</ControlLabel>
@@ -194,11 +195,11 @@ class HomePage extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>首次打几针</ControlLabel>
-                            <FormControl name="firstTimes" accepter={InputNumber} onChange={(v) => this.set({ firstTimes: parseInt(v.toString()), plan: [] })} />
+                            <FormControl name="firstTimes" accepter={InputNumber} onChange={(v) => this.set({ firstTimes: v, plan: [] })} />
                         </FormGroup>
                         <FormGroup>
                             <ControlLabel>两针间隔（天)</ControlLabel>
-                            <FormControl name="interval" accepter={InputNumber} onChange={(v) => this.set({ interval: parseInt(v.toString()), plan: [] })} />
+                            <FormControl name="interval" accepter={InputNumber} onChange={(v) => this.set({ interval: v, plan: [] })} />
                         </FormGroup>
                         <Timeline>
                             {np.plan.map((t: Date, i: number) => (
