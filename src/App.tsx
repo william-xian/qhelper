@@ -1,12 +1,8 @@
 import React from 'react';
 import { Container, Content, Footer, Header, Icon, Nav } from 'rsuite';
-
-// import default style
-import 'rsuite/dist/styles/rsuite-dark.css'
-import './App.css'
 import Peoples from './pages/Pepoples';
 import { Tools } from './pages/Tools';
-
+import { Book } from './pages/Book';
 
 class App extends React.Component {
   state = {
@@ -24,6 +20,9 @@ class App extends React.Component {
       case 'home':
         content = (<Peoples></Peoples>);
         break;
+      case 'book':
+        content = (<Book></Book>);
+        break;
       case 'tools':
         content = (<Tools></Tools>);
         break;
@@ -34,8 +33,9 @@ class App extends React.Component {
         <Content style={{ overflow: 'auto' }}>{content}</Content>
         <Footer>
           <Nav style={{ textAlign: "center" }} justified appearance="subtle" reversed activeKey={active} onSelect={(evtKey) => this.onSelect(evtKey)}>
-            <Nav.Item eventKey="home" icon={<Icon icon="peoples" />}>患者</Nav.Item>
-            <Nav.Item eventKey="tools" icon={<Icon icon="gift" />}>工具</Nav.Item>
+            <Nav.Item eventKey="home" icon={<Icon icon="group"/>}>患者</Nav.Item>
+            <Nav.Item eventKey="book" icon={<Icon icon="book" />}>笔记</Nav.Item>
+            <Nav.Item eventKey="tools" icon={<Icon icon="calculator" style={{ marginBottom: "-1px"}}/>}>工具</Nav.Item>
           </Nav>
         </Footer>
       </Container>

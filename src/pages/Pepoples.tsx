@@ -1,6 +1,8 @@
 import React from "react";
 import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Drawer, Form, FormControl, FormGroup, Icon, Table, Timeline, InputNumber } from "rsuite";
 import { DateV } from "../components/base";
+import {ReactComponent as PersonChecked} from '../icons/person-checked.svg'
+import {ReactComponent as PersonDoctor} from '../icons/person-doctor.svg'
 
 const DAY_MILLS = 24 * 60 * 60 * 1000;
 
@@ -174,13 +176,13 @@ class Peoples extends React.Component {
                             if (rowData.times < 10) {
                                 return (
                                     <span>
-                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.updateTimes(rowData)}><Icon icon="hospital-o" /></Button>
+                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.updateTimes(rowData)}><PersonDoctor className="i-icon"/></Button>
                                     </span>
                                 );
                             } else {
                                 return (
                                     <span>
-                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.delete(rowData)}><Icon icon="close" /></Button>
+                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.delete(rowData)}><PersonChecked className="i-icon"/></Button>
                                     </span>
                                 );
                             }
