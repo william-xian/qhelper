@@ -1,5 +1,5 @@
-import React from "react";
-import { Col, Divider, Icon, Input, InputGroup, InputNumber, Panel, Row } from "rsuite";
+import React, { VideoHTMLAttributes } from "react";
+import { Alert, Button, Col, Divider, Icon, Input, InputGroup, InputNumber, Panel, Row } from "rsuite";
 
 export class Tools extends React.Component {
 
@@ -57,21 +57,28 @@ export class Tools extends React.Component {
 
     addIncome() {
         const { inc, info } = this.state;
-        info.income += parseInt(inc.toString())*2;
+        info.income += parseInt(inc.toString()) * 2;
         window.localStorage.setItem("info", JSON.stringify(info));
         this.setState({ inc: 0, info });
     }
+
+    openCamera() {
+        const video: any = document.getElementById("video");
+        let msg = new Array<string>();
+    }
+
     render() {
         const { inc, info, used, need } = this.state;
         let remain = info.income - info.done - used;
         return (
             <div>
-                <Panel header="药量概况" bordered style={{margin:'6px'}}>
+                <Panel bordered style={{ margin: '6px' }}>
+                    <Divider style = {{marginTop: "2px"}}>药量概况</Divider>
                     <Row>
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>总共进货:</InputGroup.Addon>
-                                <Input readOnly value={(info.income/2).toString()}></Input>
+                                <Input readOnly value={(info.income / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
@@ -80,7 +87,7 @@ export class Tools extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>总共使用:</InputGroup.Addon>
-                                <Input readOnly value={((info.done + used)/2).toString()}></Input>
+                                <Input readOnly value={((info.done + used) / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
@@ -124,6 +131,11 @@ export class Tools extends React.Component {
                             </InputGroup>
                         </Col>
                     </Row>
+                </Panel>
+                <Panel bordered style={{ margin: '6px' }}>
+                    <Row><Button onClick={() => this.openCamera()}>打开</Button></Row>
+                    <Divider /> 
+                    <video id="video" autoPlay={true} style={{ height: 128, width: 128, background: 'blue' }} ></video>
                 </Panel>
             </div>
         );
