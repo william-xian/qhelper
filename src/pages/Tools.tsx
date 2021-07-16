@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Button, ButtonGroup, Divider, Icon, Input, Panel, Row, Uploader } from "rsuite";
+import { Alert, Button, ButtonGroup, Divider, Icon, IconButton, Input, Panel, Row, Uploader } from "rsuite";
 import { FileType } from "rsuite/lib/Uploader";
 
 import Tesseract from 'tesseract.js';
@@ -114,7 +114,7 @@ export class Tools extends React.Component {
                                 shouldUpload={(file: FileType) => {
                                     this.translateFile(file);
                                     return false;
-                                }} />
+                                }} ><Button>本地图片转换</Button></Uploader>
                         </ButtonGroup>
                     </Divider>
                     <Row>
