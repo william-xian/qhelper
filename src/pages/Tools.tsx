@@ -1,11 +1,17 @@
 import React from "react";
-import { Alert, Button, ButtonGroup, Divider, Icon, IconButton, Input, Panel, Row, Uploader } from "rsuite";
+import { Alert, Button, ButtonGroup, Divider, Icon, Input, Panel, Row, Uploader } from "rsuite";
 import { FileType } from "rsuite/lib/Uploader";
 
 import Tesseract from 'tesseract.js';
 
 export class Tools extends React.Component {
-
+    worker = Tesseract.createWorker({
+        langPath: 'https://www.onceio.top/rs/lang-data',
+        logger: (m:any) => {
+            console.log(m);
+            //Alert.info(JSON.stringify(m));
+        }
+    });
     state = {
         text: '',
     }
@@ -13,8 +19,10 @@ export class Tools extends React.Component {
     componentDidMount() {
         this.init();
     }
-    init() {
-
+    async init() {
+        await this.worker.load();
+        await this.worker.loadLanguage('chi_sim');
+        await this.worker.initialize('chi_sim');
     }
     openBackCamera() {
         const self = this;
@@ -65,31 +73,18 @@ export class Tools extends React.Component {
         }
     }
 
-    translate() {
+    async translate() {
         if (this.stream) {
             let url = window.URL.createObjectURL(this.stream);
-            Tesseract.recognize(
-                url
-            ).then(({ data: { text } }) => {
-                this.setState({ text })
-            }).catch((e: any) => {
-                console.error(e);
-                Alert.error(e);
-            });
+            const { data: { text } } = await this.worker.recognize(url);
+            this.setState({ text })
         }
     }
 
     async translateFile(file: FileType) {
-        if (file && file.blobFile) {
-            let worker = Tesseract.createWorker()
-            worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png')
-                .then(({ data: { text } }) => {
-                    this.setState({ text })
-                }).catch((e: any) => {
-                    console.error(e);
-                    Alert.error(e);
-                })
-                .finally(() => worker.terminate());
+        if(file && file.blobFile){
+            const { data: { text } } = await this.worker.recognize(file.blobFile);
+            this.setState({ text })
         }
     }
 
