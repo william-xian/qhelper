@@ -1,41 +1,60 @@
 import React from "react";
 import { Alert, Button, ButtonToolbar, Notification, ControlLabel, DatePicker, Drawer, Form, FormControl, FormGroup, Icon, Table, Timeline, InputNumber } from "rsuite";
 import { DateV } from "../components/base";
-import {ReactComponent as PersonChecked} from '../icons/person-checked.svg'
-import {ReactComponent as PersonDoctor} from '../icons/person-doctor.svg'
+import { ReactComponent as PersonDoctor } from '../icons/person-doctor.svg'
+import * as IDB from 'idb';
 
 const DAY_MILLS = 24 * 60 * 60 * 1000;
 
 class Peoples extends React.Component {
+    db: IDB.IDBPDatabase<any> | undefined;
     state = {
         addVisible: false,
         added: true,
         np: { name: '', remark: '', time: new Date(), firstTimes: 2, interval: 14, plan: [] },
-        info: { income: 0, done: 0 },
         data: [{ name: '张三', times: 0, plan: [new Date()] }]
     }
     componentDidMount() {
+        this.init();
+    }
+
+    async checkAndUpdate(db: IDB.IDBPDatabase<any>) {
         let json = window.localStorage.getItem("persons");
         let data = [];
         if (json) {
             try {
                 data = JSON.parse(json);
+                for (let item of data) {
+                    await db.put('persons', item, item.name);
+                }
+                window.localStorage.removeItem('persons');
             } catch (e) {
                 data = [];
             }
         }
-        let jsonInfo = window.localStorage.getItem("info");
-        let info = {
-            income: 0,
-            done: 0
-        }
-        if (jsonInfo) {
-            try {
-                info = JSON.parse(jsonInfo);
-            } catch (e) {
+    }
+
+    async init() {
+        this.db = await IDB.openDB<any>('patient', 1, {
+            upgrade(db: IDB.IDBPDatabase<any>, ov: number) {
+                if (ov < 1) {
+                    const ps = db.createObjectStore('persons');
+                    const info = db.createObjectStore('stock');
+                }
+            },
+        });
+        this.checkAndUpdate(this.db);
+        let data = await this.db.getAll("persons");
+        data.sort((a: any, b: any) => {
+            if (a.times == 10) {
+                return 1;
             }
-        }
-        this.setState({ data, info });
+            if (b.times == 10) {
+                return -1;
+            }
+            return a.plan[a.times] - b.plan[b.times];
+        });
+        this.setState({ data });
     }
     componentDidUpdate() {
 
@@ -58,18 +77,9 @@ class Peoples extends React.Component {
         np.plan = plan;
         this.setState({ np })
     }
-    add() {
-        const { added, np } = this.state;
-        let json = window.localStorage.getItem("persons");
-        let data = [];
-        if (json) {
-            try {
-                data = JSON.parse(json);
-            } catch (e) {
-                data = [];
-            }
-        }
-        let old = data.find((v: any) => v.name === np.name);
+    async add() {
+        const { added, np, data } = this.state;
+        let old = await this.db?.get('persons', np.name);
         if (old && added) {
             Alert.error(`用户名(${np.name})已经存在，如果重名请加编号如:${np.name}2`)
         } else {
@@ -77,10 +87,10 @@ class Peoples extends React.Component {
                 let oi = data.findIndex((v: any) => v.name === np.name);
                 data.splice(oi, 1);
             }
-
-            data.push({ name: np.name, times: parseInt(np.firstTimes.toString()), plan: np.plan });
+            let nv = { name: np.name, times: parseInt(np.firstTimes.toString()), plan: np.plan };
+            data.push(nv);
             data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
-            window.localStorage.setItem("persons", JSON.stringify(data));
+            this.db?.add("persons", nv, nv.name)
             this.setState({ addVisible: false, data })
         }
     }
@@ -94,8 +104,16 @@ class Peoples extends React.Component {
         let callback = () => {
             item.times = item.times + 1;
             const { data } = this.state;
-            window.localStorage.setItem("persons", JSON.stringify(data));
-            data.sort((a: any, b: any) => a.plan[a.times] - b.plan[b.times])
+            this.db?.put('persons', item, item.name);
+            data.sort((a: any, b: any) => {
+                if (a.times == 10) {
+                    return 1;
+                }
+                if (b.times == 10) {
+                    return -1;
+                }
+                return a.plan[a.times] - b.plan[b.times];
+            })
             this.setState({ data })
         }
         Notification.open({
@@ -113,33 +131,10 @@ class Peoples extends React.Component {
         });
     }
 
-    delete(item: any) {
-        let callback = () => {
-            const { data, info } = this.state;
-            let i = data.findIndex((v) => v.name === item.name)
-            data.splice(i, 1);
-            window.localStorage.setItem("persons", JSON.stringify(data));
-            info.done += item.times;
-            window.localStorage.setItem("info", JSON.stringify(info));
-            this.setState({ data })
-        }
-        Notification.warning({
-            key: 'delete',
-            title: '删除用户?',
-            description: (
-                <div>
-                    <p>您确定该患者已经打完并删除?</p>
-                    <ButtonToolbar>
-                        <Button size="xs" color="green" onClick={() => { Notification.close('update') }}>取消</Button>
-                        <Button size="xs" color="red" onClick={() => { callback(); Notification.close('delete') }}>确定</Button>
-                    </ButtonToolbar>
-                </div>
-            )
-        });
-    }
     render() {
         const { addVisible, np, data } = this.state;
-        const height = document.body.clientHeight-42;
+        const today = new Date().getTime() + 24 * 60 * 60 * 1000;
+        const height = document.body.clientHeight - 42;
         return (<div>
             <Table data={data} height={height} virtualized bordered>
                 <Table.Column align="center" width={100} fixed>
@@ -172,17 +167,11 @@ class Peoples extends React.Component {
                 <Table.Column width={64} fixed="right">
                     <Table.HeaderCell><Icon icon="user-plus" onClick={() => this.setState({ addVisible: true, added: true, })} /></Table.HeaderCell>
                     <Table.Cell>
-                        {(rowData: any) => {
-                            if (rowData.times < 10) {
+                        {(row: any) => {
+                            if (row.times < 10 && row.plan[row.times] < today) {
                                 return (
                                     <span>
-                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.updateTimes(rowData)}><PersonDoctor className="i-icon"/></Button>
-                                    </span>
-                                );
-                            } else {
-                                return (
-                                    <span>
-                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.delete(rowData)}><PersonChecked className="i-icon"/></Button>
+                                        <Button appearance="link" style={{ margin: 0, padding: 0 }} onClick={() => this.updateTimes(row)}><PersonDoctor className="i-icon" /></Button>
                                     </span>
                                 );
                             }

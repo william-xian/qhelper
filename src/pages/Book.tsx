@@ -1,47 +1,41 @@
 import React from "react";
 import { Col, Divider, Icon, Input, InputGroup, InputNumber, Panel, Row } from "rsuite";
-export class Book extends React.Component {
 
+import * as IDB from 'idb';
+
+
+export class Book extends React.Component {
+    db: IDB.IDBPDatabase<any> | undefined;
     state = {
         inc: 0,
+        income: 0,
         used: 0,
         need: 0,
-        info: {
-            income: 0,
-            done: 0,
-        }
     }
     componentDidMount() {
         this.init();
     }
 
-    init() {
-        let jsonPersons = window.localStorage.getItem("persons");
-
-        let jsonInfo = window.localStorage.getItem("info");
-        let data = [];
-        if (jsonPersons) {
-            try {
-                data = JSON.parse(jsonPersons);
-            } catch (e) {
-                data = [];
-            }
-        }
-        let info = {
-            income: 0,
-            done: 0
-        }
-        if (jsonInfo) {
-            try {
-                info = JSON.parse(jsonInfo);
-            } catch (e) {
-            }
-        }
+    async init() {
+        this.db = await IDB.openDB<any>('patient', 1, {
+            upgrade(db: IDB.IDBPDatabase<any>, ov: number) {
+                if (ov < 1) {
+                    const ps = db.createObjectStore('persons');
+                    const info = db.createObjectStore('stock');
+                }
+            },
+        });
+        let persons = await this.db.getAll("persons");
+        let stock = await this.db.getAll("stock");
         let used = 0;
         let need = 0;
         let now = new Date();
         let nextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-        for (let x of data) {
+        let income = 0;
+        for (let s of stock) {
+            income += s.val;
+        }
+        for (let x of persons) {
             used += x.times;
             for (let i = x.times; i < x.plan.length; i++) {
                 if (x.plan[i] < nextMonth) {
@@ -51,18 +45,19 @@ export class Book extends React.Component {
                 }
             }
         }
-        this.setState({ info, used, need });
+        this.setState({income , used, need });
     }
 
     addIncome() {
-        const { inc, info } = this.state;
-        info.income += parseInt(inc.toString()) * 2;
-        window.localStorage.setItem("info", JSON.stringify(info));
-        this.setState({ inc: 0, info });
+        const { inc, income } = this.state;
+        let deta = parseInt(inc.toString()) * 2;
+        let data = { val: deta, time: new Date().getTime() };
+        this.db?.add("stock", data , data.time);
+        this.setState({ inc: '0', income:(income+deta) });
     }
     render() {
-        const { inc, info, used, need } = this.state;
-        let remain = info.income - info.done - used;
+        const { inc, income, used, need } = this.state;
+        let remain = income - used;
         return (
             <div>
                 <Panel bordered style={{ margin: '6px' }}>
@@ -71,7 +66,7 @@ export class Book extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>总共进货:</InputGroup.Addon>
-                                <Input readOnly value={(info.income / 2).toString()}></Input>
+                                <Input readOnly value={(income / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
@@ -80,7 +75,7 @@ export class Book extends React.Component {
                         <Col>
                             <InputGroup>
                                 <InputGroup.Addon>总共使用:</InputGroup.Addon>
-                                <Input readOnly value={((info.done + used) / 2).toString()}></Input>
+                                <Input readOnly value={((used) / 2).toString()}></Input>
                                 <InputGroup.Addon>盒</InputGroup.Addon>
                             </InputGroup>
                         </Col>
