@@ -43,7 +43,7 @@ class Peoples extends React.Component {
                 }
             },
         });
-        this.checkAndUpdate(this.db);
+        await this.checkAndUpdate(this.db);
         let data = await this.db.getAll("persons");
         data.sort((a: any, b: any) => {
             if (a.times == 10) {
